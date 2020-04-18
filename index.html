@@ -7,60 +7,7 @@
   <link href="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css" rel="stylesheet">
   <script src="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js"></script>
   
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      //load google charts package
-      google.charts.load('current', {'packages':['corechart', 'table']});
-      let totalRecovered = 0;
-      
-      getData = () => {
-        //fetch data
-        fetch("https://pomber.github.io/covid19/timeseries.json")
-      .then(response => response.json())
-      .then(data => {
-        let dataArray = [["date", "confirmed"]];
-        //loop US data, insert into 2d array
-        data["US"].forEach(({ date, confirmed, recovered, deaths }) =>
-          dataArray.push([date, confirmed])
-        );
-        drawChart(dataArray);
-        drawTable();
-      });
-      }
-
-      drawChart = (dataArray) => {
-        //convert into a google charts table
-        let data = google.visualization.arrayToDataTable(dataArray);
-        let options = {
-          title: 'COVID-19 Confirmed Cases US',
-          curveType: 'function',
-          legend: { position: 'bottom' }
-        };
-
-        let chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
-
-        chart.draw(data, options);
-      }
-      
-       drawTable = (dataArray) => {
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Date');
-        data.addColumn('number', 'US');
-        data.addRows([
-          ['Mike',  10000],
-          ['Jim',   8000],
-          ['Alice', 12500],
-          ['Bob',   7000]
-        ]);
-
-        var table = new google.visualization.Table(document.getElementById('table_div'));
-
-        table.draw(data, {width: '50%', height: '100%'});
-      }
-         
-    google.charts.setOnLoadCallback(getData);
-    //google.charts.setOnLoadCallback(drawChart);
-    </script>
+  
     
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -128,13 +75,13 @@
     <div class="view" id="home">Home</div>
     <div class="view" id="search">Search
     <form action="/action_page.php" method="get">
-      <input list="browsers" name="browser">
-      <datalist id="browsers">
-        <option value="Internet Explorer">
+      <input list="countryList" name="country">
+      <datalist id="countryList">
+<!--         <option value="Internet Explorer">
         <option value="Firefox">
         <option value="Chrome">
         <option value="Opera">
-        <option value="Safari">
+        <option value="Safari"> -->
       </datalist>
       <input type="submit">
     </form>
@@ -145,9 +92,56 @@
     <div id="table_div"></div>
   </main>
     
-  
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      //load google charts package
+      google.charts.load('current', {'packages':['corechart', 'table']});
+      let totalRecovered = 0;
+      let countryNames = [];
+      getData = () => {
+        //fetch data
+        fetch("https://pomber.github.io/covid19/timeseries.json")
+      .then(response => response.json())
+      .then(data => {
+        let dataArray = [["date", "US"]];
+        
+        //loop US data, insert into 2d array
+        for(const country in data) {
+          countryNames.push(country);
+        }
+        data["US"].forEach(({ date, confirmed, recovered, deaths }) =>
+          dataArray.push([date, confirmed])
+        );
+        drawChart(dataArray);
+        drawTable(dataArray);
+      });
+      }
+
+      drawChart = (dataArray) => {
+        //convert into a google charts table
+        let data = google.visualization.arrayToDataTable(dataArray);
+        let options = {
+          title: 'COVID-19 Confirmed Cases US',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        let chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
+
+        chart.draw(data, options);
+      }
+      
+       drawTable = (dataArray) => {
+        let data = new google.visualization.arrayToDataTable(dataArray);
+
+        var table = new google.visualization.Table(document.getElementById('table_div'));
+
+        table.draw(data, {width: '50%', height: '100%'});
+      }
+         
+    google.charts.setOnLoadCallback(getData);
+    //google.charts.setOnLoadCallback(drawChart);
     
-  <script>
     //mdc.ripple.MDCRipple.attachTo(document.querySelector('.foo-button'));
     mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('header.mdc-top-app-bar'));
 
@@ -175,7 +169,18 @@
         drawer.open = false;
       })
     })
-    
+   
+    let dataList = document.querySelector("#countryList"); 
+     for(const country of countryNames) {
+       console.log(country);
+       let option = document.createElement("option");
+       option.textContent = country;
+       option.value = country;
+       //console.log(country);
+       //dataList.appendChild(option);
+     }
+      //dataList.appendChild(document.createElement("option").textContent = "hwegagaeg");
+    console.log(dataList);
     </script>
     
   </body>
