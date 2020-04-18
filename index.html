@@ -72,12 +72,12 @@
     </button> -->
     <div class="view" id="home">Home</div>
     <div class="view" id="search">Search
-    <form action="/action_page.php" method="get">
-      <input list="countryList" name="country">
+      
+    <input list="countryList" name="country" id="theCountryList">
       <datalist id="countryList">
       </datalist>
-      <input type="submit">
-    </form>
+    <button type="submit" id="submitCountry">Add Country</button>
+      
     </div>
     <div class="view" id="table">Table</div>
     <div class="view" id="chart">Chart</div>
@@ -98,9 +98,10 @@
       .then(data => {
         let dataArray = [["date", "US"]];
         let dataList = document.querySelector("#countryList"); 
-        console.log(dataList);
         for(const country in data) {
            countryNames.push(country);
+          
+          //for the option menu showing all of the different countries
            let option = document.createElement("option");
            option.textContent = country;
            option.value = country;
@@ -114,6 +115,14 @@
         drawTable(dataArray);
       });
       }
+      
+      //adds the country to a list that will be used to display later
+      let whichCountry = document.querySelector("#theCountryList");
+      let userSelection = [];
+      document.querySelector("#submitCountry")
+        .addEventListener("click", (event) =>
+                          {userSelection.push(whichCountry.value);
+                          whichCountry.value = "";});
       
       //creates the line chart
       drawChart = (dataArray) => {
