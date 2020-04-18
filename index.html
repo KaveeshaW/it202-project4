@@ -7,8 +7,6 @@
   <link href="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css" rel="stylesheet">
   <script src="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js"></script>
   
-  
-    
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
   <style>
@@ -77,11 +75,6 @@
     <form action="/action_page.php" method="get">
       <input list="countryList" name="country">
       <datalist id="countryList">
-<!--         <option value="Internet Explorer">
-        <option value="Firefox">
-        <option value="Chrome">
-        <option value="Opera">
-        <option value="Safari"> -->
       </datalist>
       <input type="submit">
     </form>
@@ -104,11 +97,16 @@
       .then(response => response.json())
       .then(data => {
         let dataArray = [["date", "US"]];
-        
-        //loop US data, insert into 2d array
+        let dataList = document.querySelector("#countryList"); 
+        console.log(dataList);
         for(const country in data) {
-          countryNames.push(country);
+           countryNames.push(country);
+           let option = document.createElement("option");
+           option.textContent = country;
+           option.value = country;
+           dataList.appendChild(option);
         }
+        //loop US data, insert into 2d array
         data["US"].forEach(({ date, confirmed, recovered, deaths }) =>
           dataArray.push([date, confirmed])
         );
@@ -116,7 +114,8 @@
         drawTable(dataArray);
       });
       }
-
+      
+      //creates the line chart
       drawChart = (dataArray) => {
         //convert into a google charts table
         let data = google.visualization.arrayToDataTable(dataArray);
@@ -127,15 +126,13 @@
         };
 
         let chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
-
         chart.draw(data, options);
       }
       
-       drawTable = (dataArray) => {
+      //creates the table 
+      drawTable = (dataArray) => {
         let data = new google.visualization.arrayToDataTable(dataArray);
-
         var table = new google.visualization.Table(document.getElementById('table_div'));
-
         table.draw(data, {width: '50%', height: '100%'});
       }
          
@@ -169,18 +166,6 @@
         drawer.open = false;
       })
     })
-   
-    let dataList = document.querySelector("#countryList"); 
-     for(const country of countryNames) {
-       console.log(country);
-       let option = document.createElement("option");
-       option.textContent = country;
-       option.value = country;
-       //console.log(country);
-       //dataList.appendChild(option);
-     }
-      //dataList.appendChild(document.createElement("option").textContent = "hwegagaeg");
-    console.log(dataList);
     </script>
     
   </body>
