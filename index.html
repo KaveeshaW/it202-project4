@@ -77,6 +77,7 @@
       <datalist id="countryList">
       </datalist>
     <button type="submit" id="submitCountry">Add Country</button>
+    <button id="plotThings">Plot</button>
       
     </div>
     <div class="view" id="table">Table</div>
@@ -91,14 +92,17 @@
       google.charts.load('current', {'packages':['corechart', 'table']});
       let totalRecovered = 0;
       let countryNames = [];
+      let specificData = {};
       getData = () => {
         //fetch data
         fetch("https://pomber.github.io/covid19/timeseries.json")
       .then(response => response.json())
       .then(data => {
-        let dataArray = [["date", "US"]];
+        specificData = data;
+        //let dataArray = [["date", "US"]];
         let dataList = document.querySelector("#countryList"); 
         for(const country in data) {
+           //gets the names of the country
            countryNames.push(country);
           
           //for the option menu showing all of the different countries
@@ -107,12 +111,12 @@
            option.value = country;
            dataList.appendChild(option);
         }
-        //loop US data, insert into 2d array
-        data["US"].forEach(({ date, confirmed, recovered, deaths }) =>
-          dataArray.push([date, confirmed])
-        );
-        drawChart(dataArray);
-        drawTable(dataArray);
+//         //loop US data, insert into 2d array
+//         data["US"].forEach(({ date, confirmed, recovered, deaths }) =>
+//           dataArray.push([date, confirmed])
+//         );
+//         drawChart(dataArray);
+//         drawTable(dataArray);
       });
       }
       
@@ -123,6 +127,18 @@
         .addEventListener("click", (event) =>
                           {userSelection.push(whichCountry.value);
                           whichCountry.value = "";});
+      
+      let dataArray = [["date", "confirmed", "whichCountry"]];
+      document.querySelector("#plotThings")
+        .addEventListener("click", (event) =>                        
+                          {
+                            for(const country of userSelection) {
+                              console.log(country);
+                              specificData[country].forEach(({ date, confirmed, recovered, deaths }) => {
+                                 dataArray.push([date, confirmed, country]);
+                              });
+                            }
+      });
       
       //creates the line chart
       drawChart = (dataArray) => {
