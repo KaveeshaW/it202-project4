@@ -82,8 +82,8 @@
     <p id="listOfCountries"></p>
       
     </div>
-    <div class="view" id="table">Confirmed Cases
-    <div id="table_div"></div></div>
+    <div class="view" id="table">Confirmed Cases <div id="table_div"></div>
+    </div>
     <div class="view" id="chart">Chart
     <div id="curve_chart" style="width: 900px; height: 500px"></div></div>
     
@@ -105,10 +105,9 @@
       .then(response => response.json())
       .then(data => {
         specificData = data;
-        let dataArray = [["date", "US"]];
         let dataList = document.querySelector("#countryList"); 
         for(const country in data) {
-           //gets the names of the country
+           //gets the names of every country
            countryNames.push(country);
           
           //for the option menu showing all of the different countries
@@ -117,12 +116,6 @@
            option.value = country;
            dataList.appendChild(option);
         }
-        //loop US data, insert into 2d array
-        data["US"].forEach(({ date, confirmed, recovered, deaths }) =>
-          dataArray.push([date, confirmed])
-        );
-        drawChart(dataArray);
-        drawTable(dataArray);
       });
       }
       
@@ -132,8 +125,13 @@
       document.querySelector("#submitCountry")
         .addEventListener("click", (event) =>
         {
+        //clears everything
         if(userPlotted) {
           userSelection = [];
+          realData = [];
+          specificRow = [];
+          chart.clearChart();
+          table.clearChart();
         }
         userSelection.push(whichCountry.value);
          let paragraph = document.querySelector("#listOfCountries");
@@ -146,62 +144,87 @@
         console.log(userSelection);
         });
       
-      let totalDataPoints = 0;
-      let count = 0;
+      //let totalDataPoints = 0;
+      let maxDataPoints = 0;
       let dataArray = [["date", "confirmed", "country"]];
+      console.log(specificData["US"]);
+      let realData = [];
+      let count = 0;
+      let specificRow = [];
+      let alreadyPushed = false;
+      let date = "";
       document.querySelector("#plotThings")
         .addEventListener("click", (event) =>                        
         {
           userPlotted = true;
+          //populates the first row with the date and the country
+          specificRow.push("Date");
           for(const country of userSelection) {
-            specificData[country].forEach(({ date, confirmed, recovered, deaths }) => {
-              totalDataPoints++; 
-              dataArray.push([date, confirmed, country]);
-            });
+            specificRow.push(country);
           }
-        let paragraph = document.querySelector("#listOfCountries");
-        paragraph.textContent += "I do not know how to structure the data to pass it into the chart, thus nothing will change. It does populate an array with the countries choosen, and you can see that when you look at the console after plotting. There is a table and a line graph on the other screens, but it is not correct. Not sure why the line graph looks like that. Clearing the data almost works when you try different countries and plot again (look at console for that)";
-        console.log("this is what would be plotted: " + dataArray);
-//         //         let dataPoints = [[], []];
-//         let whichRow = 0;
-//         let whichColumn = 0;
-//         while(count < totalDataPoints) {
-//           for(const country in userSelection) {
-//             dataPoints[whichRow][whichColumn]
-//           }
-//         }
+          realData.push(specificRow);
+        
+          //checking the data that is in the json, I looked at china and it started at 1-22-2020
+          //and the US started on that date too. From that point I figured that all of the dates start at the same point
+          //so I kind of hard coded it to just the US, but it will change based on the number of days in the data
+          for(let index = 0; index < specificData["US"].length; index++) {
+            //this is done so that there isn't one big row but multiple small rows for each day
+            specificRow = [];
+            for(const country of userSelection) {
+                //I only want to push the date once per row
+                if(alreadyPushed === false) {
+                  date = specificData[country][index].date;
+                  specificRow.push(date);
+                  alreadyPushed = true;
+                }
+                let numConfirmed = specificData[country][index].confirmed;
+                specificRow.push(numConfirmed);
+            }
+            //pushes the row into the table of data I will use to plot the graph and the table
+            realData.push(specificRow);
+            alreadyPushed = false;
+          }
+          console.log(realData);
+          let paragraph = document.querySelector("#listOfCountries");
+          paragraph.textContent += "When you add countries after plotting, the table and chart will reset. You can see what homepage is supposed to look like now (not related to you clicking the button but rather changing the scene from home to search)";
+          document.querySelector("#search").style.display = "none";
+          document.querySelector("#table").style.display = "block";
+          drawChart(realData);
+          drawTable(realData);
       });
       
+      //-------------------------------------------------------------
       //creates the line chart
-      drawChart = (dataArray, userSelection) => {
+      let chart;
+      drawChart = (dataArray) => {
         
         //convert into a google charts table
-//         let data = google.visualization.DataTable();
-        let data = google.visualization.arrayToDataTable(dataArray);
-//         for(const country of userSelection) {
-//           data.addColumn('number', country);
-//         }
+        //the first row needs to be what each column represents, otherwise the array would not work
+        let data = new google.visualization.arrayToDataTable(dataArray);
         let options = {
-          title: 'COVID-19 Confirmed Cases US',
+          title: 'COVID-19 Confirmed Cases',
           curveType: 'function',
           legend: { position: 'bottom' }
         };
-
-        let chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
+        chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
         chart.draw(data, options);
       }
+      //-------------------------------------------------------------
       
+      //-------------------------------------------------------------
       //creates the table 
+      let table;
       drawTable = (dataArray) => {
         let data = new google.visualization.arrayToDataTable(dataArray);
-        var table = new google.visualization.Table(document.getElementById('table_div'));
-        table.draw(data, {width: '50%', height: '100%'});
+        table = new google.visualization.Table(document.getElementById('table_div'));
+        table.draw(data, {width: '50%', height: '50%'});
       }
-      //drawChart(dataArray);
+      //-------------------------------------------------------------
          
     google.charts.setOnLoadCallback(getData);
-    //google.charts.setOnLoadCallback(drawChart);
-    
+      
+    //-------------------------------------------------------------
+    //this has to do with the app shell logic itself
     //mdc.ripple.MDCRipple.attachTo(document.querySelector('.foo-button'));
     mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('header.mdc-top-app-bar'));
 
@@ -229,6 +252,7 @@
         drawer.open = false;
       })
     })
+    //-------------------------------------------------------------
     </script>
     
   </body>
