@@ -78,6 +78,7 @@
       </datalist>
     <button type="submit" id="submitCountry">Add Country</button>
     <button id="plotThings">Plot</button>
+    <p id="listOfCountries"></p>
       
     </div>
     <div class="view" id="table">Table</div>
@@ -99,7 +100,7 @@
       .then(response => response.json())
       .then(data => {
         specificData = data;
-        //let dataArray = [["date", "US"]];
+        let dataArray = [["date", "US"]];
         let dataList = document.querySelector("#countryList"); 
         for(const country in data) {
            //gets the names of the country
@@ -111,12 +112,12 @@
            option.value = country;
            dataList.appendChild(option);
         }
-//         //loop US data, insert into 2d array
-//         data["US"].forEach(({ date, confirmed, recovered, deaths }) =>
-//           dataArray.push([date, confirmed])
-//         );
-//         drawChart(dataArray);
-//         drawTable(dataArray);
+        //loop US data, insert into 2d array
+        data["US"].forEach(({ date, confirmed, recovered, deaths }) =>
+          dataArray.push([date, confirmed])
+        );
+        drawChart(dataArray);
+        drawTable(dataArray);
       });
       }
       
@@ -126,24 +127,34 @@
       document.querySelector("#submitCountry")
         .addEventListener("click", (event) =>
                           {userSelection.push(whichCountry.value);
-                          whichCountry.value = "";});
+                           let paragraph = document.querySelector("#listOfCountries");
+                           paragraph.textContent += whichCountry.value +" ";
+                          whichCountry.value = "";
+                          });
       
-      let dataArray = [["date", "confirmed", "whichCountry"]];
+      //let dataArray = [["date", "US"]];
       document.querySelector("#plotThings")
         .addEventListener("click", (event) =>                        
-                          {
-                            for(const country of userSelection) {
-                              console.log(country);
-                              specificData[country].forEach(({ date, confirmed, recovered, deaths }) => {
-                                 dataArray.push([date, confirmed, country]);
-                              });
-                            }
+        {
+          for(const country of userSelection) {
+            console.log(country);
+            specificData[country].forEach(({ date, confirmed, recovered, deaths }) => {
+               dataArray.push([date, confirmed]);
+            });
+          }
+        console.log(dataArray);
       });
       
       //creates the line chart
-      drawChart = (dataArray) => {
+      drawChart = (dataArray, userSelection) => {
+        console.log(dataArray);
+        
         //convert into a google charts table
+//         let data = google.visualization.DataTable();
         let data = google.visualization.arrayToDataTable(dataArray);
+//         for(const country of userSelection) {
+//           data.addColumn('number', country);
+//         }
         let options = {
           title: 'COVID-19 Confirmed Cases US',
           curveType: 'function',
@@ -160,6 +171,7 @@
         var table = new google.visualization.Table(document.getElementById('table_div'));
         table.draw(data, {width: '50%', height: '100%'});
       }
+      //drawChart(dataArray);
          
     google.charts.setOnLoadCallback(getData);
     //google.charts.setOnLoadCallback(drawChart);
