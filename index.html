@@ -98,6 +98,7 @@
       let totalRecovered = 0;
       let countryNames = [];
       let specificData = {};
+      let userPlotted = false;
       getData = () => {
         //fetch data
         fetch("https://pomber.github.io/covid19/timeseries.json")
@@ -130,29 +131,38 @@
       let userSelection = [];
       document.querySelector("#submitCountry")
         .addEventListener("click", (event) =>
-                          {userSelection.push(whichCountry.value);
-                           let paragraph = document.querySelector("#listOfCountries");
-                           paragraph.textContent += whichCountry.value +" ";
-                          whichCountry.value = "";
-                          });
+        {
+        if(userPlotted) {
+          userSelection = [];
+        }
+        userSelection.push(whichCountry.value);
+         let paragraph = document.querySelector("#listOfCountries");
+        if(userPlotted) {
+          paragraph.textContent = "";
+          userPlotted = false;
+        }
+         paragraph.textContent += whichCountry.value +" ";
+        whichCountry.value = "";
+        console.log(userSelection);
+        });
       
       let totalDataPoints = 0;
       let count = 0;
-      let dataArray = [["date", "US"]];
+      let dataArray = [["date", "confirmed", "country"]];
       document.querySelector("#plotThings")
         .addEventListener("click", (event) =>                        
         {
+          userPlotted = true;
           for(const country of userSelection) {
-            console.log(country);
             specificData[country].forEach(({ date, confirmed, recovered, deaths }) => {
               totalDataPoints++; 
-              dataArray.push([date, confirmed]);
+              dataArray.push([date, confirmed, country]);
             });
           }
         let paragraph = document.querySelector("#listOfCountries");
-        paragraph.textContent += "I do not know how to structure the data to pass it into the chart, thus nothing will change. However, there is a table and a line graph on the other screens";
-        console.log(dataArray);
-//         let dataPoints = [[], []];
+        paragraph.textContent += "I do not know how to structure the data to pass it into the chart, thus nothing will change. It does populate an array with the countries choosen, and you can see that when you look at the console after plotting. There is a table and a line graph on the other screens, but it is not correct. Not sure why the line graph looks like that";
+        console.log("this is what would be plotted: " + dataArray);
+//         //         let dataPoints = [[], []];
 //         let whichRow = 0;
 //         let whichColumn = 0;
 //         while(count < totalDataPoints) {
@@ -164,7 +174,6 @@
       
       //creates the line chart
       drawChart = (dataArray, userSelection) => {
-        console.log(dataArray);
         
         //convert into a google charts table
 //         let data = google.visualization.DataTable();
