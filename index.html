@@ -54,7 +54,7 @@
   <div class="mdc-top-app-bar__row">
     <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
       <button class="material-icons mdc-top-app-bar__navigation-icon mdc-icon-button">menu</button>
-      <span class="mdc-top-app-bar__title">Title</span>
+      <span class="mdc-top-app-bar__title">CoronaVirus Data</span>
     </section>
     <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
       <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Download">file_download</button>
@@ -70,7 +70,8 @@
     <div class="mdc-button__ripple"></div>
     <span class="mdc-button__label">Button</span>
     </button> -->
-    <div class="view" id="home">Home</div>
+    <div class="view" id="home">Home
+      <p>Data is from https://pomber.github.io/covid19/timeseries.json</p></div>
     <div class="view" id="search">Search
       
     <input list="countryList" name="country" id="theCountryList">
@@ -81,10 +82,13 @@
     <p id="listOfCountries"></p>
       
     </div>
-    <div class="view" id="table">Table</div>
-    <div class="view" id="chart">Chart</div>
-    <div id="curve_chart" style="width: 900px; height: 500px"></div>
-    <div id="table_div"></div>
+    <div class="view" id="table">Confirmed Cases
+    <div id="table_div"></div></div>
+    <div class="view" id="chart">Chart
+    <div id="curve_chart" style="width: 900px; height: 500px"></div></div>
+    
+    
+    
   </main>
     
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -132,17 +136,30 @@
                           whichCountry.value = "";
                           });
       
-      //let dataArray = [["date", "US"]];
+      let totalDataPoints = 0;
+      let count = 0;
+      let dataArray = [["date", "US"]];
       document.querySelector("#plotThings")
         .addEventListener("click", (event) =>                        
         {
           for(const country of userSelection) {
             console.log(country);
             specificData[country].forEach(({ date, confirmed, recovered, deaths }) => {
-               dataArray.push([date, confirmed]);
+              totalDataPoints++; 
+              dataArray.push([date, confirmed]);
             });
           }
+        let paragraph = document.querySelector("#listOfCountries");
+        paragraph.textContent += "I do not know how to structure the data to pass it into the chart, thus nothing will change";
         console.log(dataArray);
+//         let dataPoints = [[], []];
+//         let whichRow = 0;
+//         let whichColumn = 0;
+//         while(count < totalDataPoints) {
+//           for(const country in userSelection) {
+//             dataPoints[whichRow][whichColumn]
+//           }
+//         }
       });
       
       //creates the line chart
